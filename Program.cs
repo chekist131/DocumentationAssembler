@@ -7,17 +7,37 @@ using System.IO;
 
 namespace DocumentationAssembler
 {
+    /// <summary>
+    /// Глава или раздел
+    /// </summary>
     public abstract class Node 
     {
+        /// <summary>
+        /// Заголовок
+        /// </summary>
         public string title;
+        /// <summary>
+        /// Номер внутри раздела
+        /// </summary>
         public int number;
+        /// <summary>
+        /// Уровень заголовка (для разметки)
+        /// </summary>
         public int titleLevel;
+        /// <summary>
+        /// Полный номер заголовка (пр. 3.1.4)
+        /// </summary>
         public List<int> titlePosition;
     }
 
+    /// <summary>
+    /// Глава
+    /// </summary>
     public class Paragraph : Node
     {
-        
+        /// <summary>
+        /// Текст
+        /// </summary>
         public string[] text;
         public Paragraph(string title, int number, string[] text)
         {
@@ -27,8 +47,14 @@ namespace DocumentationAssembler
         }
     }
 
+    /// <summary>
+    /// Раздел
+    /// </summary>
     public class Section : Node
     {
+        /// <summary>
+        /// Список подразделов
+        /// </summary>
         public List<Node> data;
         public Section(string title, int number, List<Node> data)
         {
@@ -51,6 +77,11 @@ namespace DocumentationAssembler
             File.WriteAllLines(FullDocumentationFile, assamble(docs), Encoding.UTF8);
         }
 
+        /// <summary>
+        /// Считать из папки в дерево
+        /// </summary>
+        /// <param name="rootFolder"></param>
+        /// <returns></returns>
         private static List<Node> makeStructure(string rootFolder)
         {
             List<Node> data = new List<Node>();
@@ -80,6 +111,11 @@ namespace DocumentationAssembler
             return data.OrderBy(e => e.number).ToList();
         }
 
+        /// <summary>
+        /// Определить глубину дерева (начиная с 1)
+        /// </summary>
+        /// <param name="l"></param>
+        /// <returns></returns>
         public static int Depth(List<Node> l)
         {
             if (l.All(e => e is Paragraph))
@@ -87,6 +123,12 @@ namespace DocumentationAssembler
             return l.Where(e => e is Section).Select(e => Depth((e as Section).data) + 1).Max();
         }
 
+        /// <summary>
+        /// Размеить уровни заголовков их полные номера
+        /// </summary>
+        /// <param name="l"></param>
+        /// <param name="depth">Глубина</param>
+        /// <param name="recTitleRoute">Положить new Stack<int>()</int></param>
         public static void MarkingUpTitleLevel(List<Node> l, int depth, Stack<int> recTitleRoute)
         {
             foreach(Node n in l)
@@ -102,6 +144,11 @@ namespace DocumentationAssembler
             }
         }
 
+        /// <summary>
+        /// Преобразовать дерево в список строк
+        /// </summary>
+        /// <param name="l"></param>
+        /// <returns></returns>
         public static List<string> assamble(List<Node> l)
         {
             List<string> outDoc = new List<string>();
@@ -121,6 +168,11 @@ namespace DocumentationAssembler
             return outDoc;
         }
 
+        /// <summary>
+        /// Вывод полного номера главы или раздела
+        /// </summary>
+        /// <param name="n"></param>
+        /// <returns></returns>
         public static string TitleRoute(Node n)
         {
             StringBuilder sb = new StringBuilder();
