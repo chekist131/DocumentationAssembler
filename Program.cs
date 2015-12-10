@@ -28,6 +28,10 @@ namespace DocumentationAssembler
         /// Полный номер заголовка (пр. 3.1.4)
         /// </summary>
         public List<int> titlePosition;
+        /// <summary>
+        /// Путь
+        /// </summary>
+        public string path;
     }
 
     /// <summary>
@@ -39,7 +43,7 @@ namespace DocumentationAssembler
         /// Текст
         /// </summary>
         public string[] text;
-        public Paragraph(string title, int number, string[] text)
+        public Paragraph(string title, int number, string[] text, string path)
         {
             this.title = title;
             this.number = number;
@@ -56,7 +60,7 @@ namespace DocumentationAssembler
         /// Список подразделов
         /// </summary>
         public List<Node> data;
-        public Section(string title, int number, List<Node> data)
+        public Section(string title, int number, List<Node> data, string path)
         {
             this.title = title;
             this.number = number;
@@ -92,19 +96,21 @@ namespace DocumentationAssembler
                     return new Paragraph(
                         string.Concat(parts.Skip(1).Take(parts.Length - 2)),
                         int.Parse(parts.First()),
-                        File.ReadAllLines(path));
+                        File.ReadAllLines(path),
+                        path);
                 });
             data.AddRange(fileNamesInfo);
 
             var dirNamesInfo = Directory.GetDirectories(rootFolder)
-                .Where(path => { int _res; return int.TryParse(path.Split(new char[] {'\\'}).Last().Split(new char[] { '.' }).First(), out _res); })
+                .Where(path => { int _res; return int.TryParse(path.Split(new char[] { '\\' }).Last().Split(new char[] { '.' }).First(), out _res); })
                 .Select(path =>
                 {
-                    string[] parts = path.Split(new char[] {'\\'}).Last().Split(new char[] { '.' });
+                    string[] parts = path.Split(new char[] { '\\' }).Last().Split(new char[] { '.' });
                     return new Section(
                         string.Concat(parts.Skip(1).Take(parts.Length - 1)),
                         int.Parse(parts.First()),
-                        makeStructure(path));
+                        makeStructure(path),
+                        path);
                 });
             data.AddRange(dirNamesInfo);
             return data.OrderBy(e => e.number).ToList();
