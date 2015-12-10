@@ -72,8 +72,7 @@ namespace DocumentationAssembler
             string FullDocumentationFile = "OptimizedCompilersProjectDocumentation.txt";
             Directory.CreateDirectory(rootFolder);
             List<Node> docs = makeStructure(rootFolder);
-            int depth = Depth(docs);
-            MarkingUpTitleLevel(docs, depth, new Stack<int>());
+            MarkingUpTitleLevel(docs, new Stack<int>());
             File.WriteAllLines(FullDocumentationFile, assamble(docs), Encoding.UTF8);
         }
 
@@ -112,24 +111,12 @@ namespace DocumentationAssembler
         }
 
         /// <summary>
-        /// Определить глубину дерева (начиная с 1)
-        /// </summary>
-        /// <param name="l"></param>
-        /// <returns></returns>
-        public static int Depth(List<Node> l)
-        {
-            if (l.All(e => e is Paragraph))
-                return 1;
-            return l.Where(e => e is Section).Select(e => Depth((e as Section).data) + 1).Max();
-        }
-
-        /// <summary>
         /// Размеить уровни заголовков их полные номера
         /// </summary>
         /// <param name="l"></param>
         /// <param name="depth">Глубина</param>
         /// <param name="recTitleRoute">Положить new Stack<int>()</int></param>
-        public static void MarkingUpTitleLevel(List<Node> l, int depth, Stack<int> recTitleRoute)
+        public static void MarkingUpTitleLevel(List<Node> l, Stack<int> recTitleRoute, int depth=1)
         {
             foreach(Node n in l)
             {
@@ -138,7 +125,7 @@ namespace DocumentationAssembler
                 n.titlePosition = recTitleRoute.Reverse().ToList();
                 if (n is Section)
                 {
-                    MarkingUpTitleLevel((n as Section).data, depth - 1, recTitleRoute);
+                    MarkingUpTitleLevel((n as Section).data, recTitleRoute, depth + 1);
                 }
                 recTitleRoute.Pop();
             }
@@ -158,12 +145,12 @@ namespace DocumentationAssembler
                 if (n is Paragraph)
                 {
                     outDoc.AddRange((n as Paragraph).text);
+                    outDoc.Add(string.Empty);
                 }
                 else if (n is Section)
                 {
                     outDoc.AddRange(assamble((n as Section).data));
                 }
-                outDoc.Add(string.Empty);
             }
             return outDoc;
         }
