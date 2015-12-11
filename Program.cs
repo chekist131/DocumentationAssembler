@@ -88,31 +88,21 @@ namespace DocumentationAssembler
         private static List<Node> makeStructure(string rootFolder)
         {
             List<Node> data = new List<Node>();
-            var fileNamesInfo = Directory.GetFiles(rootFolder)
-                .Where(path => { int _res; return int.TryParse(Path.GetFileName(path).Split(new char[] { '.' }).First(), out _res); })
-                .Select(path =>
-                {
-                    string[] parts = Path.GetFileName(path).Split(new char[] { '.' });
-                    return new Paragraph(
-                        string.Concat(parts.Skip(1).Take(parts.Length - 2)),
-                        int.Parse(parts.First()),
-                        File.ReadAllLines(path),
-                        path);
-                });
-            data.AddRange(fileNamesInfo);
+            foreach (string path in Directory.GetFiles(rootFolder))
+            {
+                string[] parts = Path.GetFileName(path).Split(new char[] { '.' });
+                int number;
+                if (parts.Last() == "txt" && int.TryParse(parts.First(), out number))
+                    data.Add(new Paragraph(string.Concat(parts.Skip(1).Take(parts.Length - 2)), number, File.ReadAllLines(path), path));
+            }
 
-            var dirNamesInfo = Directory.GetDirectories(rootFolder)
-                .Where(path => { int _res; return int.TryParse(path.Split(new char[] { '\\' }).Last().Split(new char[] { '.' }).First(), out _res); })
-                .Select(path =>
-                {
-                    string[] parts = path.Split(new char[] { '\\' }).Last().Split(new char[] { '.' });
-                    return new Section(
-                        string.Concat(parts.Skip(1).Take(parts.Length - 1)),
-                        int.Parse(parts.First()),
-                        makeStructure(path),
-                        path);
-                });
-            data.AddRange(dirNamesInfo);
+            foreach (string path in Directory.GetDirectories(rootFolder))
+            {
+                string[] parts = path.Split(new char[] { '\\' }).Last().Split(new char[] { '.' });
+                int number;
+                if (int.TryParse(parts.First(), out number))
+                    data.Add(new Section(string.Concat(parts.Skip(1).Take(parts.Length - 1)), number, makeStructure(path), path));
+            }
             return data.OrderBy(e => e.number).ToList();
         }
 
