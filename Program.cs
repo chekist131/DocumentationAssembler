@@ -148,7 +148,7 @@ namespace DocumentationAssembler
             List<string> outDoc = new List<string>();
             foreach(Node n in l)
             {
-                outDoc.Add(TitleRoute(n) + " " + n.title + "(debug_title_level=" + n.titleLevel + ")");
+                outDoc.Add(new string('#', n.titleLevel) + " " + TitleRoute(n) + " " + n.title);
                 if (n is Paragraph)
                 {
                     outDoc.AddRange((n as Paragraph).text);
