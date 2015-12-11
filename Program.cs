@@ -77,7 +77,8 @@ namespace DocumentationAssembler
             Directory.CreateDirectory(rootFolder);
             List<Node> docs = makeStructure(rootFolder);
             MarkingUpTitleLevel(docs, new Stack<int>());
-            File.WriteAllLines(FullDocumentationFile, assamble(docs), Encoding.UTF8);
+            File.WriteAllLines(FullDocumentationFile, assambleParagraphNames(docs, new Stack<string>()), Encoding.UTF8);
+            //File.WriteAllLines(FullDocumentationFile, assamble(docs), Encoding.UTF8);
         }
 
         /// <summary>
@@ -158,6 +159,26 @@ namespace DocumentationAssembler
                 {
                     outDoc.AddRange(assamble((n as Section).data));
                 }
+            }
+            return outDoc;
+        }
+
+        /// <summary>
+        /// Вывод заголовков параграфов
+        /// </summary>
+        /// <param name="l"></param>
+        /// <returns></returns>
+        public static List<string> assambleParagraphNames(List<Node> l, Stack<string> fullTitle)
+        {
+            List<string> outDoc = new List<string>();
+            foreach (Node n in l)
+            {
+                fullTitle.Push(n.title);
+                if (n is Section)
+                    outDoc.AddRange(assambleParagraphNames((n as Section).data, fullTitle));
+                else if (n is Paragraph)
+                    outDoc.Add("- " + TitleRoute(n) + " " + string.Concat(fullTitle.Reverse().Select(e => "/" + e)) + '\n');
+                fullTitle.Pop();
             }
             return outDoc;
         }
