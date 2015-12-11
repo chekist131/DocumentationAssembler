@@ -93,7 +93,18 @@ namespace DocumentationAssembler
                 string[] parts = Path.GetFileName(path).Split(new char[] { '.' });
                 int number;
                 if (parts.Last() == "txt" && int.TryParse(parts.First(), out number))
+                {
+                    string[] text;
+                    try
+                    {
+                        text = File.ReadAllLines(path);
+                    }
+                    catch(Exception e)
+                    {
+                        text = new string[] { "READ FROM FILE FAILED " + e.ToString() };
+                    }
                     data.Add(new Paragraph(string.Concat(parts.Skip(1).Take(parts.Length - 2)), number, File.ReadAllLines(path), path));
+                }
             }
 
             foreach (string path in Directory.GetDirectories(rootFolder))
