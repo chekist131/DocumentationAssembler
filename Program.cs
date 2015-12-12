@@ -72,13 +72,14 @@ namespace DocumentationAssembler
     {
         static void Main(string[] args)
         {
+            Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
             string rootFolder = "Documentation";
             string FullDocumentationFile = "OptimizedCompilersProjectDocumentation.txt";
             Directory.CreateDirectory(rootFolder);
             List<Node> docs = makeStructure(rootFolder);
             MarkingUpTitleLevel(docs, new Stack<int>());
-            File.WriteAllLines(FullDocumentationFile, assambleParagraphNames(docs, new Stack<string>()), Encoding.UTF8);
-            //File.WriteAllLines(FullDocumentationFile, assamble(docs), Encoding.UTF8);
+            //File.WriteAllLines(FullDocumentationFile, assambleParagraphNames(docs, new Stack<string>()), Encoding.UTF8);
+            File.WriteAllLines(FullDocumentationFile, assamble(docs), Encoding.UTF8);
         }
 
         /// <summary>
